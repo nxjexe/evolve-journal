@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Evolve - Journal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+        textarea { width: 100%; height: 200px; padding: 10px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Evolve - Dein Journal</h1>
+    <form action="/add" method="post">
+        <textarea name="content" placeholder="Deine Gedanken hier..."></textarea>
+        <br>
+        <button type="submit">Speichern</button>
+    </form>
+</body>
+</html>
