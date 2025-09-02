@@ -8,10 +8,19 @@
         textarea { width: 100%; height: 200px; padding: 10px; font-size: 16px; }
         button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
         button:hover { background: #0056b3; }
+        .flash-success { color: green; }
+        .flash-error { color: red; }
     </style>
 </head>
 <body>
     <h1>Evolve - Dein Journal</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p class="flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <form action="/add" method="post">
         <textarea name="content" placeholder="Deine Gedanken hier..."></textarea>
         <br>
