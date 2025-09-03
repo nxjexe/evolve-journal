@@ -7,6 +7,7 @@
         body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
         .entry { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
         .timestamp { color: #555; font-size: 0.9em; }
+        .tags { color: #007bff; font-size: 0.9em; }
         .flash-success { color: green; }
         .flash-error { color: red; }
         a { text-decoration: none; color: #007bff; }
@@ -16,6 +17,10 @@
 <body>
     <h1>Evolve - Deine Einträge</h1>
     <p><a href="{{ url_for('index') }}">Neuer Eintrag</a></p>
+    <form action="/entries" method="get">
+        <input type="text" name="tag" placeholder="Filter nach Tag (z.B. MBTI:INTJ)" value="{{ current_tag or '' }}">
+        <button type="submit">Filtern</button>
+    </form>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -27,6 +32,7 @@
         {% for entry in entries %}
             <div class="entry">
                 <p>{{ entry.content }}</p>
+                <p class="tags">Tags: {{ entry.tags or 'Keine' }}</p>
                 <p class="timestamp">Erstellt: {{ entry.timestamp }}</p>
             </div>
         {% endfor %}
