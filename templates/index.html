@@ -3,17 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <title>Evolve - Journal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
         textarea { width: 100%; height: 200px; padding: 10px; font-size: 16px; }
         input[type="text"] { width: 100%; padding: 10px; font-size: 16px; margin-top: 10px; }
         button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #0056b3; }
+        button.recording { background: #ff4444; animation: pulse 1s infinite; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
         .flash-success { color: green; }
         .flash-error { color: red; }
         a { text-decoration: none; color: #007bff; }
         a:hover { text-decoration: underline; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
+    <script>
+        const socket = io();
+
+        socket.on('recording_success', data => {
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+            document.getElementById('start-btn').classList.remove('recording');
+            document.getElementById('start-btn').innerText = 'Sprache aufnehmen';
+            window.location.href = '/?success=' + encodeURIComponent(data.message);
+        });
+
+        socket.on('recording_error', data => {
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+            document.getElementById('start-btn').classList.remove('recording');
+            document.getElementById('start-btn').innerText = 'Sprache aufnehmen';
+            window.location.href = '/?error=' + encodeURIComponent(data.message);
+        });
+
+        function startRecording() {
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+            document.getElementById('start-btn').classList.add('recording');
+            document.getElementById('start-btn').innerText = 'Aufnahme läuft...';
+            socket.emit('start_recording', {
+                tags: document.getElementById('voice-tags').value
+            });
+        }
+
+        function stopRecording() {
+            socket.emit('stop_recording');
+        }
+    </script>
 </head>
 <body>
     <h1>Evolve - Dein Journal</h1>
@@ -24,16 +60,22 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+    {% if request.args.get('success') %}
+        <p class="flash-success">{{ request.args.get('success') }}</p>
+    {% elif request.args.get('error') %}
+        <p class="flash-error">{{ request.args.get('error') }}</p>
+    {% endif %}
     <form action="/add" method="post">
         <textarea name="content" placeholder="Deine Gedanken hier..."></textarea>
         <input type="text" name="tags" placeholder="Tags (z.B. MBTI:INTJ, Enneagramm:4)">
         <br>
         <button type="submit">Speichern</button>
     </form>
-    <form action="/voice" method="post">
-        <input type="text" name="tags" placeholder="Tags für Sprache (z.B. voice)">
+    <form id="voice-form">
+        <input type="text" id="voice-tags" name="tags" placeholder="Tags für Sprache (z.B. voice)">
         <br>
-        <button type="submit">Sprache aufnehmen</button>
+        <button id="start-btn" type="button" onclick="startRecording()">Sprache aufnehmen</button>
+        <button id="stop-btn" type="button" onclick="stopRecording()" disabled>Stop</button>
     </form>
     <p><a href="{{ url_for('entries') }}">Zu den Einträgen</a></p>
 </body>
